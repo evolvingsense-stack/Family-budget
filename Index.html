@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Family Budget &amp; Document Hub — EN / ગુજરાતી</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Gujarati:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', 'Noto Sans Gujarati', system-ui, -apple-system, sans-serif;
+    }
+    html.large-text {
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen antialiased transition-colors duration-200 pb-24 sm:pb-8">
+  <div class="max-w-6xl mx-auto px-4 py-6">
+    <!-- Top Bar -->
+    <header class="mb-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div>
+        <div class="flex flex-wrap items-center gap-2 mb-1">
+          <span id="badge-edition" class="inline-block text-xs font-semibold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/70 px-2.5 py-1 rounded-full">
+            Family Edition
+          </span>
+          <span id="active-user-pill" class="inline-block text-xs font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded-full">
+            Signed in as: Me
+          </span>
+        </div>
+        <h1 id="app-title" class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">Family Budget &amp; Document Hub</h1>
+        <p id="app-subtitle" class="text-sm text-slate-600 dark:text-slate-400">Simple, large-tap layout for everyone—synced across all family phones via Google Sheets.</p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="lang-toggle-btn" type="button" class="text-xs sm:text-sm font-bold text-amber-900 dark:text-amber-200 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 hover:bg-amber-100 px-3.5 py-2.5 rounded-xl shadow-sm transition-colors">
+          🌐 ગુજરાતી
+        </button>
+
+        <button id="sync-toggle-btn" type="button" class="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-indigo-800 dark:text-indigo-200 bg-indigo-50 dark:bg-indigo-950 hover:bg-indigo-100 dark:hover:bg-indigo-900 border border-indigo-200 dark:border-indigo-800 px-3.5 py-2.5 rounded-xl transition-colors">
+          <span id="sync-dot" class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+          <span id="sync-btn-label">Google Sheets Sync</span>
+        </button>
+
+        <button id="text-size-btn" type="button" class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 px-3.5 py-2.5 rounded-xl shadow-sm transition-colors">
+          Aa Large Text
+        </button>
+
+        <button id="theme-toggle-btn" type="button" class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 px-3.5 py-2.5 rounded-xl shadow-sm transition-colors">
+          🌙 Dark
+        </button>
+
+        <button id="export-csv-btn" type="button" class="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 px-3 py-2.5 rounded-xl shadow-sm transition-colors">
+          Export CSV
+        </button>
+
+        <label id="import-csv-label" class="cursor-pointer text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 px-3 py-2.5 rounded-xl shadow-sm transition-colors">
+          <span id="import-csv-text">Import CSV</span>
+          <input id="import-csv-input" type="file" accept=".csv" class="hidden" />
+        </label>
+
+        <button id="reset-btn" type="button" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2.5 rounded-xl shadow-sm transition-colors">
+          Reset Sample
+        </button>
+        <button id="reset-confirm-btn" type="button" class="hidden text-xs sm:text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 px-3.5 py-2.5 rounded-xl shadow-sm transition-colors">
+          Confirm Reset?
+        </button>
+      </div>
+    </header>
+
+    <!-- Toast Banner -->
+    <div id="toast-wrap" class="hidden mb-4">
+      <span id="toast-msg" class="inline-block text-sm font-medium px-4 py-2 rounded-full"></span>
+    </div>
+
+    <!-- Collapsible Google Sheets Sync Panel -->
+    <section id="sync-panel" class="hidden bg-white dark:bg-slate-900 rounded-2xl border-2 border-indigo-200 dark:border-indigo-800 p-5 shadow-sm mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+        <div>
+          <h2 id="sync-heading" class="text-base font-bold text-slate-900 dark:text-white">Google Sheets Multi-Device Sync</h2>
+          <p id="sync-status-text" class="text-sm text-slate-600 dark:text-slate-400">Local Mode (this device only). Paste your Apps Script Web App URL to share with family.</p>
+        </div>
+        <button id="open-script-modal-btn" type="button" class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline self-start sm:self-center">
+          View Setup &amp; Copy Apps Script
+        </button>
+      </div>
+      <form id="sync-form" class="flex flex-col sm:flex-row gap-2">
+        <input
+          id="script-url-input"
+          type="url"
+          placeholder="https://script.google.com/macros/s/.../exec"
+          class="flex-1 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+        <div class="flex gap-2">
+          <button type="submit" id="save-url-btn" class="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors">
+            Connect
+          </button>
+          <button type="button" id="sync-now-btn" class="hidden rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors">
+            Sync Now
+          </button>
+          <button type="button" id="disconnect-btn" class="hidden rounded-xl border border-slate-300 dark:border-slate-700 px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+            Disconnect
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Desktop / Tablet Top Navigation Tabs -->
+    <nav class="hidden sm:flex flex-wrap gap-2 mb-6 border-b border-slate-200 dark:border-slate-800 pb-3">
+      <button data-tab="overview" type="button" class="tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 text-white shadow-sm">
+        📊 Summary
+      </button>
+      <button data-tab="transactions" type="button" class="tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-800">
+        ➕ Add &amp; History
+      </button>
+      <button data-tab="budgets" type="button" class="tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-800">
+        🎯 Limits &amp; Goals
+      </button>
+      <button data-tab="documents" type="button" class="tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-800">
+        📁 Documents
+      </button>
+    </nav>
+
+    <!-- TAB 1: OVERVIEW & ANALYTICS -->
+    <div id="tab-overview" class="tab-panel space-y-6">
+      <!-- Prominent Elderly-Friendly Quick Action Banner -->
+      <section class="bg-indigo-600 dark:bg-indigo-700 text-white rounded-2xl p-4 sm:p-5 shadow-md flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h2 id="banner-title" class="text-lg font-bold">Need to record a bill, expense, or income?</h2>
+          <p id="banner-subtitle" class="text-sm text-indigo-100">Tap the button to enter an amount in 3 easy steps.</p>
+        </div>
+        <button id="quick-add-jump-btn" type="button" class="rounded-xl bg-white text-indigo-700 hover:bg-indigo-50 font-bold text-sm sm:text-base px-5 py-3 shadow-sm transition-colors shrink-0">
+          ➕ Add Expense / Income
+        </button>
+      </section>
+
+      <!-- 4 KPI Cards -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+          <div class="flex items-center justify-between mb-1">
+            <span id="lbl-monthly-budget" class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Monthly Budget</span>
+            <button id="edit-budget-btn" type="button" class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline px-2 py-1">Edit</button>
+          </div>
+          <p id="budget-display" class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">₹50,000</p>
+          <form id="budget-form" class="hidden mt-3 flex gap-2">
+            <input id="budget-input" type="number" min="1" step="1" class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-base" required />
+            <button id="save-budget-btn" type="submit" class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white">Save</button>
+          </form>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+          <span id="lbl-fixed-recurring" class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Fixed Recurring</span>
+          <p id="recurring-display" class="text-2xl sm:text-3xl font-bold text-amber-600 mt-1">₹0</p>
+          <p id="sub-fixed-recurring" class="text-xs text-slate-500 dark:text-slate-400 mt-1">Loans, EMIs &amp; Subscriptions</p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+          <span id="lbl-total-spent" class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Total Spent</span>
+          <p id="spent-display" class="text-2xl sm:text-3xl font-bold text-rose-600 mt-1">₹0</p>
+          <p id="income-sub-display" class="text-xs font-medium text-emerald-700 dark:text-emerald-400 mt-1">Income: ₹0</p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+          <span id="lbl-remaining" class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Budget Remaining</span>
+          <p id="remaining-display" class="text-2xl sm:text-3xl font-bold text-emerald-600 mt-1">₹50,000</p>
+          <p id="net-cashflow-display" class="text-xs text-slate-500 dark:text-slate-400 mt-1">Net Cashflow: ₹0</p>
+        </div>
+      </section>
+
+      <!-- Progress Bar -->
+      <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+        <div class="flex items-center justify-between text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+          <span id="lbl-budget-used">Monthly Budget Used (Fixed EMIs + Expenses)</span>
+          <span id="percent-display">0%</span>
+        </div>
+        <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-4 overflow-hidden flex">
+          <div id="recurring-bar" class="bg-amber-500 h-4 transition-all duration-300" style="width: 0%"></div>
+          <div id="progress-bar" class="bg-indigo-600 h-4 transition-all duration-300" style="width: 0%"></div>
+        </div>
+      </section>
+
+      <!-- Account Balances Strip -->
+      <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+        <h2 id="lbl-accounts" class="text-base font-bold text-slate-900 dark:text-white mb-3">Accounts &amp; Wallets Net Activity</h2>
+        <div id="accounts-grid" class="grid grid-cols-2 sm:grid-cols-5 gap-3"></div>
+      </section>
+
+      <!-- Charts Grid -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+          <h2 id="lbl-cat-chart" class="text-base font-bold text-slate-900 dark:text-white mb-3">Spending by Category</h2>
+          <div class="relative h-72">
+            <canvas id="category-chart"></canvas>
+          </div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+          <h2 id="lbl-mem-chart" class="text-base font-bold text-slate-900 dark:text-white mb-3">Spending by Family Member</h2>
+          <div class="relative h-72">
+            <canvas id="member-chart"></canvas>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 2: TRANSACTIONS & EMIs -->
+    <div id="tab-transactions" class="tab-panel hidden space-y-6">
+      <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-sm">
+        <div class="mb-4">
+          <h2 id="step1-heading" class="text-lg font-bold text-slate-900 dark:text-white mb-2">1. Choose What You Are Recording</h2>
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2" role="group">
+            <button data-kind="onetime" type="button" class="kind-btn py-3 px-3 text-sm font-semibold rounded-xl bg-indigo-600 text-white shadow-sm">💸 Expense</button>
+            <button data-kind="income" type="button" class="kind-btn py-3 px-3 text-sm font-semibold rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">💰 Income</button>
+            <button data-kind="recurring" type="button" class="kind-btn py-3 px-3 text-sm font-semibold rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">🔁 EMI / Bill</button>
+            <button data-kind="lent" type="button" class="kind-btn py-3 px-3 text-sm font-semibold rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">🤝 Lent</button>
+            <button data-kind="borrowed" type="button" class="kind-btn py-3 px-3 text-sm font-semibold rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">💳 Borrowed</button>
+          </div>
+        </div>
+
+        <form id="expense-form" class="space-y-4">
+          <h3 id="step2-heading" class="text-sm font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">2. Enter Amount &amp; Details</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
+            <div class="sm:col-span-4">
+              <label id="lbl-amount" for="exp-amount" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Amount (₹)</label>
+              <input id="exp-amount" type="number" min="1" step="any" placeholder="e.g. 500" required class="w-full rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-3 text-lg font-bold focus:outline-none focus:border-indigo-500" />
+              <div class="flex flex-wrap gap-1.5 mt-2">
+                <button type="button" data-amt="100" class="quick-amt-btn text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-indigo-100 dark:hover:bg-indigo-900">+₹100</button>
+                <button type="button" data-amt="500" class="quick-amt-btn text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-indigo-100 dark:hover:bg-indigo-900">+₹500</button>
+                <button type="button" data-amt="1000" class="quick-amt-btn text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-indigo-100 dark:hover:bg-indigo-900">+₹1,000</button>
+              </div>
+            </div>
+
+            <div class="sm:col-span-5">
+              <label id="lbl-title" for="exp-title" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">What was it for?</label>
+              <input id="exp-title" type="text" placeholder="e.g. Milk &amp; Vegetables, Electricity Bill" required class="w-full rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-3 text-base focus:outline-none focus:border-indigo-500" />
+            </div>
+
+            <div class="sm:col-span-3">
+              <label id="lbl-addedby" for="exp-addedby" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Who added this?</label>
+              <input id="exp-addedby" type="text" placeholder="Your name" required class="w-full rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-3 text-base focus:outline-none focus:border-indigo-500" />
+              <div id="member-chips" class="flex flex-wrap gap-1.5 mt-2"></div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="sm:col-span-3">
+              <label id="lbl-category" for="exp-category" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Category</label>
+              <select id="exp-category" class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+            </div>
+
+            <div class="sm:col-span-3">
+              <label id="lbl-account" for="exp-account" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Payment Method</label>
+              <select id="exp-account" class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="UPI">UPI</option>
+                <option value="HDFC Bank">HDFC Bank</option>
+                <option value="SBI">SBI</option>
+                <option value="Cash">Cash</option>
+                <option value="Credit Card">Credit Card</option>
+              </select>
+            </div>
+
+            <div id="date-wrapper" class="sm:col-span-3">
+              <label id="lbl-date" for="exp-date" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Date</label>
+              <input id="exp-date" type="date" class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+
+            <div id="dueday-wrapper" class="hidden sm:col-span-3">
+              <label id="lbl-dueday" for="exp-dueday" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Monthly Due Day (1–31)</label>
+              <input id="exp-dueday" type="number" min="1" max="31" placeholder="5" class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+
+            <div class="sm:col-span-3">
+              <label id="lbl-doc" for="exp-doc" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Receipt / Doc Link</label>
+              <input id="exp-doc" type="text" placeholder="Drive URL or filename" class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+          </div>
+
+          <button id="submit-btn" type="submit" class="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 px-6 py-3.5 text-base font-bold text-white shadow-sm transition-colors">
+            ✓ Save Expense
+          </button>
+        </form>
+      </section>
+
+      <!-- Search & Filter Bar -->
+      <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm flex flex-wrap items-center gap-3">
+        <input id="search-input" type="text" placeholder="Search by name, category, or document..." class="flex-1 min-w-[200px] rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        <select id="type-filter" class="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 text-sm">
+          <option value="ALL">All Types</option>
+          <option value="onetime">Expenses</option>
+          <option value="income">Income</option>
+          <option value="recurring">Recurring / EMIs</option>
+          <option value="lent">Lent</option>
+          <option value="borrowed">Borrowed</option>
+        </select>
+        <select id="member-filter" class="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 text-sm">
+          <option value="ALL">All Members</option>
+        </select>
+        <select id="account-filter" class="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 text-sm">
+          <option value="ALL">All Accounts</option>
+          <option value="UPI">UPI</option>
+          <option value="HDFC Bank">HDFC Bank</option>
+          <option value="SBI">SBI</option>
+          <option value="Cash">Cash</option>
+          <option value="Credit Card">Credit Card</option>
+        </select>
+      </section>
+
+      <!-- Lists Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h2 id="hdr-recurring" class="text-base font-bold text-slate-900 dark:text-white">Recurring &amp; EMIs</h2>
+              <p id="sub-recurring-list" class="text-xs text-slate-500">Fixed monthly bills &amp; loans</p>
+            </div>
+            <span id="recurring-count" class="text-xs font-semibold text-amber-800 bg-amber-50 dark:bg-amber-950 dark:text-amber-300 px-3 py-1 rounded-full">0 items</span>
+          </div>
+          <ul id="recurring-list" class="divide-y divide-slate-100 dark:divide-slate-800"></ul>
+          <p id="recurring-empty" class="hidden text-center text-sm text-slate-400 py-6">No recurring items match your filter.</p>
+        </section>
+
+        <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h2 id="hdr-transactions" class="text-base font-bold text-slate-900 dark:text-white">Transactions &amp; Debts</h2>
+              <p id="sub-transactions-list" class="text-xs text-slate-500">Expenses, income, lent &amp; borrowed</p>
+            </div>
+            <span id="count-display" class="text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">0 items</span>
+          </div>
+          <ul id="expense-list" class="divide-y divide-slate-100 dark:divide-slate-800"></ul>
+          <p id="empty-state" class="hidden text-center text-sm text-slate-400 py-6">No transactions match your filter.</p>
+        </section>
+      </div>
+    </div>
+
+    <!-- TAB 3: CATEGORY LIMITS & SAVINGS GOALS -->
+    <div id="tab-budgets" class="tab-panel hidden grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+        <h2 id="hdr-limits" class="text-base font-bold text-slate-900 dark:text-white mb-1">Category Spending Limits</h2>
+        <p id="sub-limits" class="text-sm text-slate-500 mb-4">Set monthly caps per category so nobody overspends.</p>
+        <form id="limit-form" class="flex flex-wrap gap-2 mb-4">
+          <select id="limit-category" class="flex-1 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 text-sm">
+            <option value="Food">Food</option>
+            <option value="Bills & Utilities">Bills &amp; Utilities</option>
+            <option value="Transport">Transport</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Loan / EMI">Loan / EMI</option>
+            <option value="Subscription">Subscription</option>
+            <option value="Insurance">Insurance</option>
+          </select>
+          <input id="limit-amount" type="number" min="1" placeholder="Limit ₹" required class="w-32 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 text-sm" />
+          <button id="set-limit-btn" type="submit" class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700">Set</button>
+        </form>
+        <div id="limits-list" class="space-y-3"></div>
+      </section>
+
+      <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+        <h2 id="hdr-goals" class="text-base font-bold text-slate-900 dark:text-white mb-1">Savings Goals</h2>
+        <p id="sub-goals" class="text-sm text-slate-500 mb-4">Track shared family goals and add contributions anytime.</p>
+        <form id="goal-form" class="grid grid-cols-1 sm:grid-cols-12 gap-2 mb-4">
+          <input id="goal-title" type="text" placeholder="Goal name (e.g., Emergency Fund)" required class="sm:col-span-6 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 text-sm" />
+          <input id="goal-target" type="number" min="1" placeholder="Target ₹" required class="sm:col-span-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 text-sm" />
+          <button id="add-goal-btn" type="submit" class="sm:col-span-3 rounded-xl bg-emerald-600 px-3 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700">+ Goal</button>
+        </form>
+        <div id="goals-list" class="space-y-3"></div>
+      </section>
+    </div>
+
+    <!-- TAB 4: DOCUMENT & RECEIPT VAULT -->
+    <div id="tab-documents" class="tab-panel hidden space-y-4">
+      <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <div>
+            <h2 id="hdr-docs" class="text-base font-bold text-slate-900 dark:text-white">Document &amp; Receipt Vault</h2>
+            <p id="sub-docs" class="text-sm text-slate-500">All bills, loan schedules, insurance policies, and receipts linked to your entries.</p>
+          </div>
+          <input id="doc-search" type="text" placeholder="Search documents..." class="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-sm w-full sm:w-64" />
+        </div>
+        <div id="docs-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        <p id="docs-empty" class="hidden text-center text-sm text-slate-400 py-8">No documents or receipts linked yet. Add a Google Drive URL or filename to any transaction!</p>
+      </section>
+    </div>
+  </div>
+
+  <!-- Mobile Sticky Bottom Navigation -->
+  <nav class="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 grid grid-cols-4 shadow-lg">
+    <button data-tab="overview" type="button" class="mobile-tab-btn py-2.5 flex flex-col items-center justify-center text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+      <span class="text-lg leading-none mb-1">📊</span>
+      <span class="mob-tab-label" data-key="tabOverview">Summary</span>
+    </button>
+    <button data-tab="transactions" type="button" class="mobile-tab-btn py-2.5 flex flex-col items-center justify-center text-xs font-semibold text-slate-600 dark:text-slate-400">
+      <span class="text-lg leading-none mb-1">➕</span>
+      <span class="mob-tab-label" data-key="tabTransactions">Add / List</span>
+    </button>
+    <button data-tab="budgets" type="button" class="mobile-tab-btn py-2.5 flex flex-col items-center justify-center text-xs font-semibold text-slate-600 dark:text-slate-400">
+      <span class="text-lg leading-none mb-1">🎯</span>
+      <span class="mob-tab-label" data-key="tabGoals">Goals</span>
+    </button>
+    <button data-tab="documents" type="button" class="mobile-tab-btn py-2.5 flex flex-col items-center justify-center text-xs font-semibold text-slate-600 dark:text-slate-400">
+      <span class="text-lg leading-none mb-1">📁</span>
+      <span class="mob-tab-label" data-key="tabDocs">Docs</span>
+    </button>
+  </nav>
+
+  <!-- Apps Script Setup Modal -->
+  <div id="script-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-xl border border-slate-200 dark:border-slate-700">
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <h3 class="text-base font-bold text-slate-900 dark:text-white">Google Sheets Multi-User Setup (Code.gs)</h3>
+        <button id="close-script-modal-btn" type="button" class="text-slate-400 hover:text-slate-600 text-xl font-bold px-2">&times;</button>
+      </div>
+      <div class="p-5 overflow-y-auto space-y-3 text-sm text-slate-600 dark:text-slate-300">
+        <ol class="list-decimal list-inside space-y-1.5">
+          <li>Create a new <strong>Google Sheet</strong> and open <strong>Extensions &rarr; Apps Script</strong>.</li>
+          <li>Replace the default code with the script below and click <strong>Save</strong>.</li>
+          <li>Click <strong>Deploy &rarr; New deployment &rarr; Web app</strong>, set <strong>Who has access</strong> to <strong>Anyone</strong>, and click <strong>Deploy</strong>.</li>
+          <li>Paste the Web App URL into <strong>Google Sheets Sync</strong> on every family member's phone.</li>
+        </ol>
+        <pre id="apps-script-code" class="bg-slate-950 text-slate-100 p-4 rounded-xl overflow-x-auto text-xs leading-relaxed"></pre>
+      </div>
+      <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950 rounded-b-2xl">
+        <span id="copy-feedback" class="text-sm text-emerald-600 font-semibold"></span>
+        <button id="copy-script-btn" type="button" class="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700">
+          Copy Apps Script
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'cashew_multiuser_tracker_v4';
+    const URL_STORAGE_KEY = 'cashew_script_url_v4';
+    const USER_STORAGE_KEY = 'cashew_username_v4';
+    const THEME_STORAGE_KEY = 'cashew_theme_v4';
+    const TEXT_SIZE_KEY = 'cashew_large_text_v4';
+    const LANG_STORAGE_KEY = 'cashew_lang_v4';
+
+    const I18N = {
+      en: {
+        langBtn: '🌐 ગુજરાતી',
+        badgeEdition: 'Family Edition',
+        signedInPrefix: 'Signed in as: ',
+        appTitle: 'Family Budget & Document Hub',
+        appSubtitle: 'Simple, large-tap layout for everyone—synced across all family phones via Google Sheets.',
+        syncBtn: 'Google Sheets Sync',
+        syncConnected: 'Sheets Connected',
+        exportCsv: 'Export CSV',
+        importCsv: 'Import CSV',
+        resetSample: 'Reset Sample',
+        confirmReset: 'Confirm Reset?',
+        tabOverview: '📊 Summary',
+        tabTransactions: '➕ Add & History',
+        tabBudgets: '🎯 Limits & Goals',
+        tabDocuments: '📁 Documents',
+        mobOverview: 'Summary',
+        mobTransactions: 'Add / List',
+        mobGoals: 'Goals',
+        mobDocs: 'Docs',
+        bannerTitle: 'Need to record a bill, expense, or income?',
+        bannerSubtitle: 'Tap the button to enter an amount in 3 easy steps.',
+        quickAddBtn: '➕ Add Expense / Income',
+        lblBudget: 'Monthly Budget',
+        edit: 'Edit',
+        save: 'Save',
+        lblRecurring: 'Fixed Recurring',
+        subRecurring: 'Loans, EMIs & Subscriptions',
+        lblSpent: 'Total Spent',
+        lblRemaining: 'Budget Remaining',
+        lblBudgetUsed: 'Monthly Budget Used (Fixed EMIs + Expenses)',
+        lblAccounts: 'Accounts & Wallets Net Activity',
+        lblCatChart: 'Spending by Category',
+        lblMemChart: 'Spending by Family Member',
+        step1: '1. Choose What You Are Recording',
+        step2: '2. Enter Amount & Details',
+        kindOnetime: '💸 Expense',
+        kindIncome: '💰 Income',
+        kindRecurring: '🔁 EMI / Bill',
+        kindLent: '🤝 Lent',
+        kindBorrowed: '💳 Borrowed',
+        lblAmount: 'Amount (₹)',
+        lblTitle: 'What was it for?',
+        lblAddedBy: 'Who added this?',
+        lblCategory: 'Category',
+        lblAccount: 'Payment Method',
+        lblDate: 'Date',
+        lblDueDay: 'Monthly Due Day (1–31)',
+        lblDoc: 'Receipt / Doc Link',
+        submitOnetime: '✓ Save Expense',
+        submitIncome: '✓ Save Income',
+        submitRecurring: '✓ Save Recurring / EMI',
+        submitLent: '✓ Save Lent Entry',
+        submitBorrowed: '✓ Save Borrowed Entry',
+        hdrRecurring: 'Recurring & EMIs',
+        subRecurringList: 'Fixed monthly bills & loans',
+        hdrTransactions: 'Transactions & Debts',
+        subTransactionsList: 'Expenses, income, lent & borrowed',
+        hdrLimits: 'Category Spending Limits',
+        subLimits: 'Set monthly caps per category so nobody overspends.',
+        hdrGoals: 'Savings Goals',
+        subGoals: 'Track shared family goals and add contributions anytime.',
+        hdrDocs: 'Document & Receipt Vault',
+        subDocs: 'All bills, loan schedules, insurance policies, and receipts linked to your entries.',
+        setBtn: 'Set',
+        addGoalBtn: '+ Goal',
+        incomePrefix: 'Income: ',
+        netPrefix: 'Net Cashflow: '
+      },
+      gu: {
+        langBtn: '🌐 English',
+        badgeEdition: 'કુટુંબ આવૃત્તિ',
+        signedInPrefix: 'વપરાશકર્તા: ',
+        appTitle: 'કુટુંબ બજેટ અને દસ્તાવેજ હબ',
+        appSubtitle: 'દરેક માટે સરળ અને મોટા બટનવાળું લેઆઉટ—Google Sheets દ્વારા બધા ફોનમાં સિંક.',
+        syncBtn: 'Google Sheets સિંક',
+        syncConnected: 'Sheets જોડાયેલ છે',
+        exportCsv: 'CSV ડાઉનલોડ',
+        importCsv: 'CSV ઉમેરો',
+        resetSample: 'નમૂના રીસેટ',
+        confirmReset: 'ખાતરી છે?',
+        tabOverview: '📊 સારાંશ',
+        tabTransactions: '➕ ઉમેરો અને યાદી',
+        tabBudgets: '🎯 મર્યાદા અને લક્ષ્યો',
+        tabDocuments: '📁 દસ્તાવેજો',
+        mobOverview: 'સારાંશ',
+        mobTransactions: 'ઉમેરો',
+        mobGoals: 'લક્ષ્યો',
+        mobDocs: 'દસ્તાવેજ',
+        bannerTitle: 'બિલ, ખર્ચ કે આવક લખવી છે?',
+        bannerSubtitle: '૩ સરળ પગલાંમાં રકમ ઉમેરવા નીચેનું બટન દબાવો.',
+        quickAddBtn: '➕ ખર્ચ / આવક ઉમેરો',
+        lblBudget: 'માસિક બજેટ',
+        edit: 'બદલો',
+        save: 'સાચવો',
+        lblRecurring: 'નિયમિત EMI / બિલ',
+        subRecurring: 'લોન, EMI અને સબ્સ્ક્રિપ્શન',
+        lblSpent: 'કુલ ખર્ચ',
+        lblRemaining: 'બાકી બજેટ',
+        lblBudgetUsed: 'માસિક બજેટનો ઉપયોગ (EMI + ખર્ચ)',
+        lblAccounts: 'ખાતા અને વોલેટની વિગત',
+        lblCatChart: 'કેટેગરી મુજબ ખર્ચ',
+        lblMemChart: 'કુટુંબના સભ્ય મુજબ ખર્ચ',
+        step1: '૧. તમે શું નોંધી રહ્યા છો તે પસંદ કરો',
+        step2: '૨. રકમ અને વિગત લખો',
+        kindOnetime: '💸 ખર્ચ',
+        kindIncome: '💰 આવક',
+        kindRecurring: '🔁 EMI / બિલ',
+        kindLent: '🤝 આપેલા (Lent)',
+        kindBorrowed: '💳 લીધેલા (Borrowed)',
+        lblAmount: 'રકમ (₹)',
+        lblTitle: 'શાના માટે ખર્ચ/આવક છે?',
+        lblAddedBy: 'કોણે ઉમેર્યું?',
+        lblCategory: 'કેટેગરી',
+        lblAccount: 'ચુકવણીની રીત',
+        lblDate: 'તારીખ',
+        lblDueDay: 'માસિક તારીખ (૧–૩૧)',
+        lblDoc: 'બિલ / દસ્તાવેજ લિંક',
+        submitOnetime: '✓ ખર્ચ સાચવો',
+        submitIncome: '✓ આવક સાચવો',
+        submitRecurring: '✓ નિયમિત EMI સાચવો',
+        submitLent: '✓ આપેલ રકમ સાચવો',
+        submitBorrowed: '✓ લીધેલ રકમ સાચવો',
+        hdrRecurring: 'નિયમિત બિલ અને EMI',
+        subRecurringList: 'દર મહિનાના ફિક્સ ખર્ચા',
+        hdrTransactions: 'વ્યવહારો અને લેણદેણ',
+        subTransactionsList: 'ખર્ચ, આવક અને ઉધાર વ્યવહાર',
+        hdrLimits: 'કેટેગરી મુજબ ખર્ચ મર્યાદા',
+        subLimits: 'દરેક કેટેગરી માટે માસિક મર્યાદા નક્કી કરો.',
+        hdrGoals: 'બચત લક્ષ્યો (Goals)',
+        subGoals: 'કુટુંબના બચત લક્ષ્યો અને યોગદાન ટ્રૅક કરો.',
+        hdrDocs: 'દસ્તાવેજ અને બિલ વૉલ્ટ',
+        subDocs: 'બિલ, લોન શેડ્યૂલ, વીમા પોલિસી અને રસીદોની લિંક્સ.',
+        setBtn: 'નક્કી કરો',
+        addGoalBtn: '+ લક્ષ્ય',
+        incomePrefix: 'આવક: ',
+        netPrefix: 'ચોખ્ખી બચત: '
+      }
+    };
+
+    const CATEGORIES_BY_KIND = {
+      onetime: ['Food', 'Bills & Utilities', 'Transport', 'Shopping', 'Healthcare', 'Other'],
+      income: ['Salary', 'Freelance', 'Business', 'Refund / Cashback', 'Other'],
+      recurring: ['Loan / EMI', 'Subscription', 'Insurance', 'Rent / Utility', 'Other'],
+      lent: ['Personal Loan', 'Shared Bill', 'Other'],
+      borrowed: ['Personal Loan', 'Credit', 'Other']
+    };
+
+    const ACCOUNTS = ['UPI', 'HDFC Bank', 'SBI', 'Cash', 'Credit Card'];
+
+    const APPS_SCRIPT_TEMPLATE = `function doGet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const expSheet = getOrCreateExpensesSheet_(ss);
+  const setSheet = getOrCreateSettingsSheet_(ss);
+
+  const budget = Number(setSheet.getRange('B1').getValue()) || 50000;
+  const limitsRaw = setSheet.getRange('B2').getValue();
+  const goalsRaw = setSheet.getRange('B3').getValue();
+
+  const rows = expSheet.getDataRange().getValues();
+  const expenses = [];
+
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (!r[0]) continue;
+    expenses.push({
+      id: String(r[0]),
+      type: String(r[1] || 'onetime'),
+      title: String(r[2] || ''),
+      amount: Number(r[3]) || 0,
+      category: String(r[4] || 'Other'),
+      account: String(r[5] || 'UPI'),
+      date: r[6] ? String(r[6]) : '',
+      dueDay: r[7] ? Number(r[7]) : '',
+      docRef: String(r[8] || ''),
+      addedBy: String(r[9] || 'Shared'),
+      settled: r[10] === true || r[10] === 'TRUE'
+    });
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify({
+      status: 'ok',
+      monthlyBudget: budget,
+      categoryLimits: limitsRaw ? JSON.parse(limitsRaw) : {},
+      goals: goalsRaw ? JSON.parse(goalsRaw) : [],
+      expenses: expenses.reverse()
+    }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const payload = JSON.parse(e.postData.contents);
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const expSheet = getOrCreateExpensesSheet_(ss);
+    const setSheet = getOrCreateSettingsSheet_(ss);
+
+    if (payload.action === 'add' && payload.entry) {
+      const item = payload.entry;
+      expSheet.appendRow([
+        String(item.id),
+        item.type || 'onetime',
+        item.title || '',
+        Number(item.amount) || 0,
+        item.category || 'Other',
+        item.account || 'UPI',
+        item.date || '',
+        item.dueDay || '',
+        item.docRef || '',
+        item.addedBy || 'Shared',
+        Boolean(item.settled),
+        new Date().toISOString()
+      ]);
+    } else if (payload.action === 'delete' && payload.id) {
+      const rows = expSheet.getDataRange().getValues();
+      for (let i = rows.length - 1; i >= 1; i--) {
+        if (String(rows[i][0]) === String(payload.id)) {
+          expSheet.deleteRow(i + 1);
+          break;
+        }
+      }
+    } else if (payload.action === 'toggleSettle' && payload.id) {
+      const rows = expSheet.getDataRange().getValues();
+      for (let i = 1; i < rows.length; i++) {
+        if (String(rows[i][0]) === String(payload.id)) {
+          expSheet.getRange(i + 1, 11).setValue(Boolean(payload.settled));
+          break;
+        }
+      }
+    } else if (payload.action === 'setBudget' && payload.monthlyBudget) {
+      setSheet.getRange('B1').setValue(Number(payload.monthlyBudget));
+    } else if (payload.action === 'saveMeta') {
+      if (payload.categoryLimits) setSheet.getRange('B2').setValue(JSON.stringify(payload.categoryLimits));
+      if (payload.goals) setSheet.getRange('B3').setValue(JSON.stringify(payload.goals));
+    }
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: 'ok' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function getOrCreateExpensesSheet_(ss) {
+  let sheet = ss.getSheetByName('Expenses');
+  if (!sheet) {
+    sheet = ss.insertSheet('Expenses');
+    sheet.appendRow(['id', 'type', 'title', 'amount', 'category', 'account', 'date', 'dueDay', 'docRef', 'addedBy', 'settled', 'createdAt']);
+  }
+  return sheet;
+}
+
+function getOrCreateSettingsSheet_(ss) {
+  let sheet = ss.getSheetByName('Settings');
+  if (!sheet) {
+    sheet = ss.insertSheet('Settings');
+    sheet.getRange('A1:B3').setValues([
+      ['monthlyBudget', 50000],
+      ['categoryLimits', '{}'],
+      ['goals', '[]']
+    ]);
+  }
+  return sheet;
+}`;
+
+    const TODAY = new Date().toISOString().slice(0, 10);
+
+    const DEFAULT_STATE = {
+      monthlyBudget: 50000,
+      categoryLimits: {
+        'Food': 8000,
+        'Bills & Utilities': 5000,
+        'Shopping': 6000
+      },
+      goals: [
+        { id: 'g-1', title: 'Emergency Fund', target: 100000, saved: 35000 },
+        { id: 'g-2', title: 'Family Trip', target: 40000, saved: 15000 }
+      ],
+      expenses: [
+        { id: 's-1', type: 'income', title: 'Monthly Salary', amount: 85000, category: 'Salary', account: 'SBI', date: TODAY, docRef: 'Payslip_Nov.pdf', addedBy: 'Ronak', settled: false },
+        { id: 's-2', type: 'recurring', title: 'Home Loan EMI', amount: 14500, category: 'Loan / EMI', account: 'SBI', dueDay: 5, docRef: 'SBI_HomeLoan_Schedule.pdf', addedBy: 'Ronak', settled: false },
+        { id: 's-3', type: 'recurring', title: 'Broadband & OTT Bundle', amount: 999, category: 'Subscription', account: 'UPI', dueDay: 12, docRef: '', addedBy: 'Kinnary', settled: false },
+        { id: 's-4', type: 'onetime', title: 'Weekly Groceries', amount: 1850, category: 'Food', account: 'UPI', date: TODAY, docRef: '', addedBy: 'Kinnary', settled: false },
+        { id: 's-5', type: 'onetime', title: 'Electricity Bill', amount: 1420, category: 'Bills & Utilities', account: 'HDFC Bank', date: TODAY, docRef: 'PGVCL_Bill_Nov.pdf', addedBy: 'Ronak', settled: false },
+        { id: 's-6', type: 'lent', title: 'Dinner Split (Rohan)', amount: 1200, category: 'Shared Bill', account: 'UPI', date: TODAY, docRef: '', addedBy: 'Ronak', settled: false }
+      ]
+    };
+
+    function safeGet(key, fallback) {
+      try { return localStorage.getItem(key) || fallback; } catch (e) { return fallback; }
+    }
+    function safeSet(key, val) {
+      try { localStorage.setItem(key, val); } catch (e) {}
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.expenses)) {
+            return {
+              monthlyBudget: Number(parsed.monthlyBudget) || 50000,
+              categoryLimits: parsed.categoryLimits || {},
+              goals: Array.isArray(parsed.goals) ? parsed.goals : [],
+              expenses: parsed.expenses
+            };
+          }
+        }
+      } catch (e) {}
+      return JSON.parse(JSON.stringify(DEFAULT_STATE));
+    }
+
+    function saveState() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+    }
+
+    let state = loadState();
+    let scriptUrl = safeGet(URL_STORAGE_KEY, '');
+    let activeEntryType = 'onetime';
+    let currentLang = safeGet(LANG_STORAGE_KEY, 'en');
+    if (!I18N[currentLang]) currentLang = 'en';
+    let categoryChartInstance = null;
+    let memberChartInstance = null;
+
+    // DOM refs
+    const langToggleBtn = document.getElementById('lang-toggle-btn');
+    const activeUserPill = document.getElementById('active-user-pill');
+    const textSizeBtn = document.getElementById('text-size-btn');
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const quickAddJumpBtn = document.getElementById('quick-add-jump-btn');
+    const toastWrap = document.getElementById('toast-wrap');
+    const toastMsg = document.getElementById('toast-msg');
+
+    const syncToggleBtn = document.getElementById('sync-toggle-btn');
+    const syncDot = document.getElementById('sync-dot');
+    const syncBtnLabel = document.getElementById('sync-btn-label');
+    const syncPanel = document.getElementById('sync-panel');
+    const syncStatusText = document.getElementById('sync-status-text');
+    const syncForm = document.getElementById('sync-form');
+    const scriptUrlInput = document.getElementById('script-url-input');
+    const syncNowBtn = document.getElementById('sync-now-btn');
+    const disconnectBtn = document.getElementById('disconnect-btn');
+
+    const openScriptModalBtn = document.getElementById('open-script-modal-btn');
+    const scriptModal = document.getElementById('script-modal');
+    const closeScriptModalBtn = document.getElementById('close-script-modal-btn');
+    const appsScriptCodeEl = document.getElementById('apps-script-code');
+    const copyScriptBtn = document.getElementById('copy-script-btn');
+    const copyFeedback = document.getElementById('copy-feedback');
+
+    const exportCsvBtn = document.getElementById('export-csv-btn');
+    const importCsvInput = document.getElementById('import-csv-input');
+    const resetBtn = document.getElementById('reset-btn');
+    const resetConfirmBtn = document.getElementById('reset-confirm-btn');
+
+    const budgetDisplay = document.getElementById('budget-display');
+    const recurringDisplay = document.getElementById('recurring-display');
+    const spentDisplay = document.getElementById('spent-display');
+    const incomeSubDisplay = document.getElementById('income-sub-display');
+    const remainingDisplay = document.getElementById('remaining-display');
+    const netCashflowDisplay = document.getElementById('net-cashflow-display');
+    const percentDisplay = document.getElementById('percent-display');
+    const recurringBar = document.getElementById('recurring-bar');
+    const progressBar = document.getElementById('progress-bar');
+    const accountsGrid = document.getElementById('accounts-grid');
+
+    const editBudgetBtn = document.getElementById('edit-budget-btn');
+    const budgetForm = document.getElementById('budget-form');
+    const budgetInput = document.getElementById('budget-input');
+
+    const expenseForm = document.getElementById('expense-form');
+    const amountInput = document.getElementById('exp-amount');
+    const categorySelect = document.getElementById('exp-category');
+    const accountSelect = document.getElementById('exp-account');
+    const addedByInput = document.getElementById('exp-addedby');
+    const memberChipsEl = document.getElementById('member-chips');
+    const dateWrapper = document.getElementById('date-wrapper');
+    const duedayWrapper = document.getElementById('dueday-wrapper');
+    const dateInput = document.getElementById('exp-date');
+    const duedayInput = document.getElementById('exp-dueday');
+    const submitBtn = document.getElementById('submit-btn');
+
+    const searchInput = document.getElementById('search-input');
+    const typeFilter = document.getElementById('type-filter');
+    const memberFilter = document.getElementById('member-filter');
+    const accountFilter = document.getElementById('account-filter');
+
+    const recurringCount = document.getElementById('recurring-count');
+    const recurringList = document.getElementById('recurring-list');
+    const recurringEmpty = document.getElementById('recurring-empty');
+    const countDisplay = document.getElementById('count-display');
+    const expenseList = document.getElementById('expense-list');
+    const emptyState = document.getElementById('empty-state');
+
+    const limitForm = document.getElementById('limit-form');
+    const limitsList = document.getElementById('limits-list');
+    const goalForm = document.getElementById('goal-form');
+    const goalsList = document.getElementById('goals-list');
+    const docSearch = document.getElementById('doc-search');
+    const docsGrid = document.getElementById('docs-grid');
+    const docsEmpty = document.getElementById('docs-empty');
+
+    appsScriptCodeEl.textContent = APPS_SCRIPT_TEMPLATE;
+    dateInput.value = TODAY;
+    addedByInput.value = safeGet(USER_STORAGE_KEY, 'Me');
+
+    function applyLanguage() {
+      const t = I18N[currentLang];
+      langToggleBtn.textContent = t.langBtn;
+      document.getElementById('badge-edition').textContent = t.badgeEdition;
+      activeUserPill.textContent = t.signedInPrefix + (addedByInput.value || 'Me');
+      document.getElementById('app-title').textContent = t.appTitle;
+      document.getElementById('app-subtitle').textContent = t.appSubtitle;
+      syncBtnLabel.textContent = scriptUrl ? t.syncConnected : t.syncBtn;
+      exportCsvBtn.textContent = t.exportCsv;
+      document.getElementById('import-csv-text').textContent = t.importCsv;
+      resetBtn.textContent = t.resetSample;
+      resetConfirmBtn.textContent = t.confirmReset;
+
+      document.querySelector('[data-tab="overview"].tab-btn').textContent = t.tabOverview;
+      document.querySelector('[data-tab="transactions"].tab-btn').textContent = t.tabTransactions;
+      document.querySelector('[data-tab="budgets"].tab-btn').textContent = t.tabBudgets;
+      document.querySelector('[data-tab="documents"].tab-btn').textContent = t.tabDocuments;
+
+      document.querySelector('[data-key="tabOverview"]').textContent = t.mobOverview;
+      document.querySelector('[data-key="tabTransactions"]').textContent = t.mobTransactions;
+      document.querySelector('[data-key="tabGoals"]').textContent = t.mobGoals;
+      document.querySelector('[data-key="tabDocs"]').textContent = t.mobDocs;
+
+      document.getElementById('banner-title').textContent = t.bannerTitle;
+      document.getElementById('banner-subtitle').textContent = t.bannerSubtitle;
+      quickAddJumpBtn.textContent = t.quickAddBtn;
+
+      document.getElementById('lbl-monthly-budget').textContent = t.lblBudget;
+      editBudgetBtn.textContent = t.edit;
+      document.getElementById('save-budget-btn').textContent = t.save;
+      document.getElementById('lbl-fixed-recurring').textContent = t.lblRecurring;
+      document.getElementById('sub-fixed-recurring').textContent = t.subRecurring;
+      document.getElementById('lbl-total-spent').textContent = t.lblSpent;
+      document.getElementById('lbl-remaining').textContent = t.lblRemaining;
+      document.getElementById('lbl-budget-used').textContent = t.lblBudgetUsed;
+      document.getElementById('lbl-accounts').textContent = t.lblAccounts;
+      document.getElementById('lbl-cat-chart').textContent = t.lblCatChart;
+      document.getElementById('lbl-mem-chart').textContent = t.lblMemChart;
+
+      document.getElementById('step1-heading').textContent = t.step1;
+      document.getElementById('step2-heading').textContent = t.step2;
+      document.querySelector('[data-kind="onetime"]').textContent = t.kindOnetime;
+      document.querySelector('[data-kind="income"]').textContent = t.kindIncome;
+      document.querySelector('[data-kind="recurring"]').textContent = t.kindRecurring;
+      document.querySelector('[data-kind="lent"]').textContent = t.kindLent;
+      document.querySelector('[data-kind="borrowed"]').textContent = t.kindBorrowed;
+
+      document.getElementById('lbl-amount').textContent = t.lblAmount;
+      document.getElementById('lbl-title').textContent = t.lblTitle;
+      document.getElementById('lbl-addedby').textContent = t.lblAddedBy;
+      document.getElementById('lbl-category').textContent = t.lblCategory;
+      document.getElementById('lbl-account').textContent = t.lblAccount;
+      document.getElementById('lbl-date').textContent = t.lblDate;
+      document.getElementById('lbl-dueday').textContent = t.lblDueDay;
+      document.getElementById('lbl-doc').textContent = t.lblDoc;
+
+      document.getElementById('hdr-recurring').textContent = t.hdrRecurring;
+      document.getElementById('sub-recurring-list').textContent = t.subRecurringList;
+      document.getElementById('hdr-transactions').textContent = t.hdrTransactions;
+      document.getElementById('sub-transactions-list').textContent = t.subTransactionsList;
+      document.getElementById('hdr-limits').textContent = t.hdrLimits;
+      document.getElementById('sub-limits').textContent = t.subLimits;
+      document.getElementById('hdr-goals').textContent = t.hdrGoals;
+      document.getElementById('sub-goals').textContent = t.subGoals;
+      document.getElementById('hdr-docs').textContent = t.hdrDocs;
+      document.getElementById('sub-docs').textContent = t.subDocs;
+      document.getElementById('set-limit-btn').textContent = t.setBtn;
+      document.getElementById('add-goal-btn').textContent = t.addGoalBtn;
+
+      updateFormMode(activeEntryType);
+    }
+
+    langToggleBtn.addEventListener('click', () => {
+      currentLang = currentLang === 'en' ? 'gu' : 'en';
+      safeSet(LANG_STORAGE_KEY, currentLang);
+      applyLanguage();
+      render();
+    });
+
+    // Large Text Toggle
+    function applyTextSize(large) {
+      if (large) {
+        document.documentElement.classList.add('large-text');
+        textSizeBtn.textContent = 'Aa Normal Text';
+      } else {
+        document.documentElement.classList.remove('large-text');
+        textSizeBtn.textContent = 'Aa Large Text';
+      }
+      safeSet(TEXT_SIZE_KEY, large ? 'large' : 'normal');
+    }
+    applyTextSize(safeGet(TEXT_SIZE_KEY, 'normal') === 'large');
+    textSizeBtn.addEventListener('click', () => {
+      applyTextSize(!document.documentElement.classList.contains('large-text'));
+    });
+
+    // Theme Toggle
+    function applyTheme(dark) {
+      if (dark) {
+        document.documentElement.classList.add('dark');
+        themeToggleBtn.textContent = '☀️ Light';
+      } else {
+        document.documentElement.classList.remove('dark');
+        themeToggleBtn.textContent = '🌙 Dark';
+      }
+      safeSet(THEME_STORAGE_KEY, dark ? 'dark' : 'light');
+    }
+    applyTheme(safeGet(THEME_STORAGE_KEY, 'light') === 'dark');
+    themeToggleBtn.addEventListener('click', () => {
+      applyTheme(!document.documentElement.classList.contains('dark'));
+      renderCharts();
+    });
+
+    function showToast(msg, isError) {
+      toastMsg.textContent = msg;
+      toastMsg.className = isError
+        ? 'inline-block text-sm font-semibold text-rose-800 bg-rose-50 border border-rose-200 px-4 py-1.5 rounded-full'
+        : 'inline-block text-sm font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-4 py-1.5 rounded-full';
+      toastWrap.classList.remove('hidden');
+      setTimeout(() => toastWrap.classList.add('hidden'), 3500);
+    }
+
+    function formatINR(num) {
+      return '₹' + Number(num).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+    }
+
+    function ordinalSuffix(day) {
+      const d = Number(day);
+      if (d >= 11 && d <= 13) return d + 'th';
+      switch (d % 10) {
+        case 1: return d + 'st';
+        case 2: return d + 'nd';
+        case 3: return d + 'rd';
+        default: return d + 'th';
+      }
+    }
+
+    function switchTab(target) {
+      document.querySelectorAll('.tab-btn').forEach((b) => {
+        const active = b.getAttribute('data-tab') === target;
+        b.className = active
+          ? 'tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 text-white shadow-sm'
+          : 'tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-800';
+      });
+      document.querySelectorAll('.mobile-tab-btn').forEach((b) => {
+        const active = b.getAttribute('data-tab') === target;
+        b.className = active
+          ? 'mobile-tab-btn py-2.5 flex flex-col items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/40'
+          : 'mobile-tab-btn py-2.5 flex flex-col items-center justify-center text-xs font-semibold text-slate-600 dark:text-slate-400';
+      });
+
+      document.querySelectorAll('.tab-panel').forEach((p) => p.classList.add('hidden'));
+      document.getElementById('tab-' + target).classList.remove('hidden');
+      if (target === 'overview') renderCharts();
+    }
+
+    document.querySelectorAll('.tab-btn, .mobile-tab-btn').forEach((btn) => {
+      btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab')));
+    });
+
+    quickAddJumpBtn.addEventListener('click', () => {
+      switchTab('transactions');
+      amountInput.focus();
+    });
+
+    document.querySelectorAll('.quick-amt-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const add = parseFloat(btn.getAttribute('data-amt')) || 0;
+        const cur = parseFloat(amountInput.value) || 0;
+        amountInput.value = cur + add;
+      });
+    });
+
+    function updateFormMode(kind) {
+      activeEntryType = kind;
+      const t = I18N[currentLang];
+      const cats = CATEGORIES_BY_KIND[kind] || CATEGORIES_BY_KIND.onetime;
+      categorySelect.innerHTML = '';
+      cats.forEach((cat) => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        categorySelect.appendChild(opt);
+      });
+
+      document.querySelectorAll('.kind-btn').forEach((b) => {
+        const isSelected = b.getAttribute('data-kind') === kind;
+        b.className = isSelected
+          ? 'kind-btn py-3 px-3 text-sm font-semibold rounded-xl bg-indigo-600 text-white shadow-sm'
+          : 'kind-btn py-3 px-3 text-sm font-semibold rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200';
+      });
+
+      if (kind === 'recurring') {
+        dateWrapper.classList.add('hidden');
+        duedayWrapper.classList.remove('hidden');
+        submitBtn.textContent = t.submitRecurring;
+      } else {
+        dateWrapper.classList.remove('hidden');
+        duedayWrapper.classList.add('hidden');
+        const labels = {
+          onetime: t.submitOnetime,
+          income: t.submitIncome,
+          lent: t.submitLent,
+          borrowed: t.submitBorrowed
+        };
+        submitBtn.textContent = labels[kind] || t.submitOnetime;
+      }
+    }
+
+    document.querySelectorAll('.kind-btn').forEach((btn) => {
+      btn.addEventListener('click', () => updateFormMode(btn.getAttribute('data-kind')));
+    });
+
+    function updateSyncUI() {
+      const t = I18N[currentLang];
+      if (scriptUrl) {
+        scriptUrlInput.value = scriptUrl;
+        syncDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500';
+        syncBtnLabel.textContent = t.syncConnected;
+        syncStatusText.textContent = 'Connected to Google Sheets. Changes sync across all family devices.';
+        syncNowBtn.classList.remove('hidden');
+        disconnectBtn.classList.remove('hidden');
+      } else {
+        syncDot.className = 'w-2.5 h-2.5 rounded-full bg-slate-400';
+        syncBtnLabel.textContent = t.syncBtn;
+        syncStatusText.textContent = 'Local Mode (this device only). Paste your Apps Script Web App URL to share with family.';
+        syncNowBtn.classList.add('hidden');
+        disconnectBtn.classList.add('hidden');
+      }
+    }
+
+    async function pullFromSheets() {
+      if (!scriptUrl) return;
+      try {
+        showToast('Syncing with Google Sheets...', false);
+        const res = await fetch(scriptUrl);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (data && data.status === 'ok' && Array.isArray(data.expenses)) {
+          state.monthlyBudget = Number(data.monthlyBudget) || state.monthlyBudget;
+          if (data.categoryLimits) state.categoryLimits = data.categoryLimits;
+          if (Array.isArray(data.goals)) state.goals = data.goals;
+          state.expenses = data.expenses;
+          saveState();
+          render();
+          showToast('Synced with Google Sheets', false);
+        }
+      } catch (err) {
+        showToast('Sync failed: verify your Apps Script Web App URL', true);
+      }
+    }
+
+    async function pushToSheets(payload) {
+      if (!scriptUrl) return;
+      try {
+        await fetch(scriptUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+      } catch (err) {
+        showToast('Saved locally, cloud sync failed', true);
+      }
+    }
+
+    syncToggleBtn.addEventListener('click', () => syncPanel.classList.toggle('hidden'));
+    syncForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const val = scriptUrlInput.value.trim();
+      if (val) {
+        scriptUrl = val;
+        safeSet(URL_STORAGE_KEY, scriptUrl);
+        updateSyncUI();
+        pullFromSheets();
+      }
+    });
+    syncNowBtn.addEventListener('click', () => pullFromSheets());
+    disconnectBtn.addEventListener('click', () => {
+      scriptUrl = '';
+      safeSet(URL_STORAGE_KEY, '');
+      scriptUrlInput.value = '';
+      updateSyncUI();
+      showToast('Disconnected from Google Sheets', false);
+    });
+
+    openScriptModalBtn.addEventListener('click', () => {
+      copyFeedback.textContent = '';
+      scriptModal.classList.remove('hidden');
+    });
+    closeScriptModalBtn.addEventListener('click', () => scriptModal.classList.add('hidden'));
+    copyScriptBtn.addEventListener('click', () => {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(APPS_SCRIPT_TEMPLATE).then(() => {
+          copyFeedback.textContent = 'Copied to clipboard!';
+        }).catch(() => fallbackCopy());
+      } else {
+        fallbackCopy();
+      }
+    });
+    function fallbackCopy() {
+      const ta = document.createElement('textarea');
+      ta.value = APPS_SCRIPT_TEMPLATE;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      copyFeedback.textContent = 'Copied to clipboard!';
+    }
+
+    exportCsvBtn.addEventListener('click', () => {
+      const headers = ['id', 'type', 'title', 'amount', 'category', 'account', 'date', 'dueDay', 'docRef', 'addedBy', 'settled'];
+      const lines = [headers.join(',')];
+      state.expenses.forEach((e) => {
+        const row = headers.map((h) => '"' + String(e[h] ?? '').replace(/"/g, '""') + '"');
+        lines.push(row.join(','));
+      });
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'family_budget_' + TODAY + '.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Exported CSV', false);
+    });
+
+    importCsvInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const lines = String(ev.target.result || '').split(/\r?\n/).filter(Boolean);
+        if (lines.length < 2) return;
+        let imported = 0;
+        for (let i = 1; i < lines.length; i++) {
+          const cols = lines[i].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
+          if (!cols || cols.length < 4) continue;
+          const clean = (s) => (s || '').replace(/^"|"$/g, '').replace(/""/g, '"').trim();
+          const entry = {
+            id: clean(cols[0]) || ('imp-' + Date.now() + '-' + i),
+            type: clean(cols[1]) || 'onetime',
+            title: clean(cols[2]) || 'Imported Item',
+            amount: parseFloat(clean(cols[3])) || 0,
+            category: clean(cols[4]) || 'Other',
+            account: clean(cols[5]) || 'UPI',
+            date: clean(cols[6]) || TODAY,
+            dueDay: clean(cols[7]) ? Number(clean(cols[7])) : '',
+            docRef: clean(cols[8]) || '',
+            addedBy: clean(cols[9]) || addedByInput.value || 'Me',
+            settled: clean(cols[10]) === 'true'
+          };
+          if (entry.amount > 0) {
+            state.expenses.unshift(entry);
+            imported++;
+          }
+        }
+        saveState();
+        render();
+        showToast('Imported ' + imported + ' rows from CSV', false);
+      };
+      reader.readAsText(file);
+      importCsvInput.value = '';
+    });
+
+    function createEntryElement(item) {
+      const li = document.createElement('li');
+      li.className = 'py-3.5 flex items-start justify-between gap-3';
+
+      const left = document.createElement('div');
+      left.className = 'min-w-0';
+
+      const titleRow = document.createElement('div');
+      titleRow.className = 'flex items-center gap-2';
+
+      const titleEl = document.createElement('p');
+      titleEl.className = item.settled
+        ? 'text-base font-semibold text-slate-400 line-through truncate'
+        : 'text-base font-semibold text-slate-900 dark:text-white truncate';
+      titleEl.textContent = item.title;
+      titleRow.appendChild(titleEl);
+
+      if (item.type === 'lent' || item.type === 'borrowed') {
+        const badge = document.createElement('span');
+        badge.className = item.type === 'lent'
+          ? 'text-xs font-semibold uppercase px-2 py-0.5 rounded bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300'
+          : 'text-xs font-semibold uppercase px-2 py-0.5 rounded bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300';
+        badge.textContent = item.type;
+        titleRow.appendChild(badge);
+      }
+
+      left.appendChild(titleRow);
+
+      const meta = document.createElement('div');
+      meta.className = 'flex flex-wrap items-center gap-1.5 mt-1.5';
+
+      const catEl = document.createElement('span');
+      catEl.className = 'inline-block text-xs font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded';
+      catEl.textContent = item.category;
+      meta.appendChild(catEl);
+
+      if (item.account) {
+        const accEl = document.createElement('span');
+        accEl.className = 'inline-block text-xs text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded';
+        accEl.textContent = item.account;
+        meta.appendChild(accEl);
+      }
+
+      if (item.addedBy) {
+        const userEl = document.createElement('span');
+        userEl.className = 'inline-block text-xs font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded';
+        userEl.textContent = 'by ' + item.addedBy;
+        meta.appendChild(userEl);
+      }
+
+      if (item.type === 'recurring' && item.dueDay) {
+        const dueEl = document.createElement('span');
+        dueEl.className = 'text-xs text-slate-500';
+        dueEl.textContent = 'Due ' + ordinalSuffix(item.dueDay);
+        meta.appendChild(dueEl);
+      } else if (item.date) {
+        const dateEl = document.createElement('span');
+        dateEl.className = 'text-xs text-slate-500';
+        dateEl.textContent = item.date;
+        meta.appendChild(dateEl);
+      }
+
+      if (item.docRef) {
+        if (/^https?:\/\//i.test(item.docRef)) {
+          const linkEl = document.createElement('a');
+          linkEl.href = item.docRef;
+          linkEl.target = '_blank';
+          linkEl.rel = 'noopener noreferrer';
+          linkEl.className = 'inline-flex items-center text-xs font-semibold text-indigo-600 dark:text-indigo-400 underline';
+          linkEl.textContent = 'Open Doc ↗';
+          meta.appendChild(linkEl);
+        } else {
+          const refEl = document.createElement('span');
+          refEl.className = 'inline-block text-xs text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950 px-2 py-0.5 rounded truncate max-w-[150px]';
+          refEl.title = item.docRef;
+          refEl.textContent = '📄 ' + item.docRef;
+          meta.appendChild(refEl);
+        }
+      }
+
+      left.appendChild(meta);
+
+      const right = document.createElement('div');
+      right.className = 'flex items-center gap-2 shrink-0';
+
+      const amtEl = document.createElement('span');
+      amtEl.className = item.type === 'income'
+        ? 'text-base font-bold text-emerald-600 dark:text-emerald-400'
+        : 'text-base font-bold text-slate-900 dark:text-white';
+      amtEl.textContent = (item.type === 'income' ? '+' : '') + formatINR(item.amount);
+      right.appendChild(amtEl);
+
+      if (item.type === 'lent' || item.type === 'borrowed') {
+        const settleBtn = document.createElement('button');
+        settleBtn.type = 'button';
+        settleBtn.className = 'text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700';
+        settleBtn.textContent = item.settled ? 'Unsettle' : 'Settle';
+        settleBtn.addEventListener('click', () => {
+          item.settled = !item.settled;
+          saveState();
+          render();
+          pushToSheets({ action: 'toggleSettle', id: item.id, settled: item.settled });
+        });
+        right.appendChild(settleBtn);
+      }
+
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'text-xs font-semibold text-rose-600 hover:text-rose-800 px-2.5 py-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950';
+      delBtn.textContent = 'Delete';
+      delBtn.addEventListener('click', () => {
+        state.expenses = state.expenses.filter((e) => String(e.id) !== String(item.id));
+        saveState();
+        render();
+        pushToSheets({ action: 'delete', id: item.id });
+      });
+
+      right.appendChild(delBtn);
+      li.appendChild(left);
+      li.appendChild(right);
+      return li;
+    }
+
+    function updateMemberControls() {
+      const members = Array.from(new Set(state.expenses.map((e) => e.addedBy).filter(Boolean))).sort();
+      const prev = memberFilter.value;
+      memberFilter.innerHTML = '<option value="ALL">All Members</option>';
+      members.forEach((m) => {
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = m;
+        memberFilter.appendChild(opt);
+      });
+      memberFilter.value = (prev === 'ALL' || members.includes(prev)) ? prev : 'ALL';
+
+      memberChipsEl.innerHTML = '';
+      members.slice(0, 5).forEach((m) => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-slate-700 dark:text-slate-200';
+        chip.textContent = m;
+        chip.addEventListener('click', () => {
+          addedByInput.value = m;
+          safeSet(USER_STORAGE_KEY, m);
+          activeUserPill.textContent = I18N[currentLang].signedInPrefix + m;
+        });
+        memberChipsEl.appendChild(chip);
+      });
+    }
+
+    function renderCharts() {
+      if (typeof Chart === 'undefined') return;
+      const isDark = document.documentElement.classList.contains('dark');
+      const textColor = isDark ? '#cbd5e1' : '#334155';
+
+      const spendingItems = state.expenses.filter((e) => e.type === 'onetime' || e.type === 'recurring');
+      const catTotals = {};
+      const memTotals = {};
+
+      spendingItems.forEach((item) => {
+        catTotals[item.category] = (catTotals[item.category] || 0) + item.amount;
+        const m = item.addedBy || 'Shared';
+        memTotals[m] = (memTotals[m] || 0) + item.amount;
+      });
+
+      const catCtx = document.getElementById('category-chart').getContext('2d');
+      if (categoryChartInstance) categoryChartInstance.destroy();
+      categoryChartInstance = new Chart(catCtx, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(catTotals),
+          datasets: [{
+            data: Object.values(catTotals),
+            backgroundColor: ['#4f46e5', '#f59e0b', '#10b981', '#ef4444', '#06b6d4', '#8b5cf6', '#ec4899'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: textColor, boxWidth: 14, font: { size: 12 } } }
+          }
+        }
+      });
+
+      const memCtx = document.getElementById('member-chart').getContext('2d');
+      if (memberChartInstance) memberChartInstance.destroy();
+      memberChartInstance = new Chart(memCtx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(memTotals),
+          datasets: [{
+            label: 'Total Spend + EMIs (₹)',
+            data: Object.values(memTotals),
+            backgroundColor: '#4f46e5',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: textColor, font: { size: 12 } }, grid: { display: false } },
+            y: { ticks: { color: textColor, font: { size: 12 } }, grid: { color: isDark ? '#1e293b' : '#f1f5f9' } }
+          }
+        }
+      });
+    }
+
+    function renderAccounts() {
+      accountsGrid.innerHTML = '';
+      ACCOUNTS.forEach((acc) => {
+        let net = 0;
+        state.expenses.forEach((e) => {
+          if ((e.account || 'UPI') !== acc) return;
+          if (e.type === 'income' || (e.type === 'borrowed' && !e.settled)) net += e.amount;
+          else if (e.type === 'onetime' || e.type === 'recurring' || (e.type === 'lent' && !e.settled)) net -= e.amount;
+        });
+        const card = document.createElement('div');
+        card.className = 'rounded-xl border border-slate-200 dark:border-slate-800 p-3.5 bg-slate-50 dark:bg-slate-950';
+        card.innerHTML = `<p class="text-xs font-semibold text-slate-600 dark:text-slate-400">${acc}</p>
+          <p class="text-base font-bold mt-1 ${net >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${formatINR(net)}</p>`;
+        accountsGrid.appendChild(card);
+      });
+    }
+
+    function renderLimitsAndGoals() {
+      limitsList.innerHTML = '';
+      const spendByCat = {};
+      state.expenses.filter((e) => e.type === 'onetime' || e.type === 'recurring').forEach((e) => {
+        spendByCat[e.category] = (spendByCat[e.category] || 0) + e.amount;
+      });
+      const limitEntries = Object.entries(state.categoryLimits || {});
+      if (limitEntries.length === 0) {
+        limitsList.innerHTML = '<p class="text-sm text-slate-400">No category limits set yet.</p>';
+      } else {
+        limitEntries.forEach(([cat, limit]) => {
+          const used = spendByCat[cat] || 0;
+          const pct = limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
+          const row = document.createElement('div');
+          row.className = 'p-3.5 rounded-xl border border-slate-200 dark:border-slate-800';
+          row.innerHTML = `
+            <div class="flex justify-between text-sm font-semibold mb-2">
+              <span>${cat}</span>
+              <span>${formatINR(used)} / ${formatINR(limit)} (${pct}%)</span>
+            </div>
+            <div class="w-full bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
+              <div class="${pct >= 90 ? 'bg-rose-500' : 'bg-indigo-600'} h-2.5 rounded-full" style="width:${pct}%"></div>
+            </div>`;
+          limitsList.appendChild(row);
+        });
+      }
+
+      goalsList.innerHTML = '';
+      if (state.goals.length === 0) {
+        goalsList.innerHTML = '<p class="text-sm text-slate-400">No savings goals created yet.</p>';
+      } else {
+        state.goals.forEach((g) => {
+          const pct = g.target > 0 ? Math.min(100, Math.round((g.saved / g.target) * 100)) : 0;
+          const card = document.createElement('div');
+          card.className = 'p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2.5';
+          card.innerHTML = `
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-bold">${g.title}</span>
+              <span class="text-xs font-semibold text-slate-500">${formatINR(g.saved)} / ${formatINR(g.target)} (${pct}%)</span>
+            </div>
+            <div class="w-full bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
+              <div class="bg-emerald-500 h-2.5 rounded-full" style="width:${pct}%"></div>
+            </div>`;
+          const btnRow = document.createElement('div');
+          btnRow.className = 'flex gap-2';
+          const addBtn = document.createElement('button');
+          addBtn.type = 'button';
+          addBtn.className = 'text-xs font-semibold text-emerald-800 bg-emerald-50 dark:bg-emerald-950 dark:text-emerald-300 px-3 py-1.5 rounded-lg';
+          addBtn.textContent = '+ ₹1,000';
+          addBtn.addEventListener('click', () => {
+            g.saved += 1000;
+            saveState();
+            renderLimitsAndGoals();
+            pushToSheets({ action: 'saveMeta', goals: state.goals });
+          });
+          const delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.className = 'text-xs font-semibold text-rose-600 px-3 py-1.5 rounded-lg';
+          delBtn.textContent = 'Remove';
+          delBtn.addEventListener('click', () => {
+            state.goals = state.goals.filter((x) => x.id !== g.id);
+            saveState();
+            renderLimitsAndGoals();
+            pushToSheets({ action: 'saveMeta', goals: state.goals });
+          });
+          btnRow.appendChild(addBtn);
+          btnRow.appendChild(delBtn);
+          card.appendChild(btnRow);
+          goalsList.appendChild(card);
+        });
+      }
+    }
+
+    function renderDocuments() {
+      const q = docSearch.value.trim().toLowerCase();
+      const docItems = state.expenses.filter((e) => {
+        if (!e.docRef) return false;
+        if (!q) return true;
+        return (e.title + ' ' + e.docRef + ' ' + e.category + ' ' + e.addedBy).toLowerCase().includes(q);
+      });
+
+      docsGrid.innerHTML = '';
+      if (docItems.length === 0) {
+        docsEmpty.classList.remove('hidden');
+      } else {
+        docsEmpty.classList.add('hidden');
+        docItems.forEach((item) => {
+          const card = document.createElement('div');
+          card.className = 'p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex flex-col justify-between gap-3';
+          const isUrl = /^https?:\/\//i.test(item.docRef);
+          card.innerHTML = `
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <span class="text-xs font-semibold uppercase px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">${item.category}</span>
+                <span class="text-sm font-bold">${formatINR(item.amount)}</span>
+              </div>
+              <p class="text-base font-bold text-slate-900 dark:text-white">${item.title}</p>
+              <p class="text-xs text-slate-500 mt-0.5">Added by ${item.addedBy || 'Shared'} • ${item.date || ('Due ' + ordinalSuffix(item.dueDay))}</p>
+            </div>
+            <div class="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <span class="text-xs text-slate-600 dark:text-slate-400 truncate max-w-[160px]" title="${item.docRef}">📄 ${item.docRef}</span>
+              ${isUrl ? `<a href="${item.docRef}" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 underline">Open ↗</a>` : ''}
+            </div>`;
+          docsGrid.appendChild(card);
+        });
+      }
+    }
+
+    function render() {
+      const t = I18N[currentLang];
+      updateMemberControls();
+
+      const q = searchInput.value.trim().toLowerCase();
+      const tVal = typeFilter.value;
+      const mVal = memberFilter.value;
+      const aVal = accountFilter.value;
+
+      const filtered = state.expenses.filter((e) => {
+        if (tVal !== 'ALL' && e.type !== tVal) return false;
+        if (mVal !== 'ALL' && e.addedBy !== mVal) return false;
+        if (aVal !== 'ALL' && (e.account || 'UPI') !== aVal) return false;
+        if (q && !(e.title + ' ' + e.category + ' ' + (e.docRef || '') + ' ' + (e.addedBy || '')).toLowerCase().includes(q)) return false;
+        return true;
+      });
+
+      const recurringItems = filtered.filter((e) => e.type === 'recurring');
+      const otherItems = filtered.filter((e) => e.type !== 'recurring');
+
+      const totalRecurring = state.expenses.filter((e) => e.type === 'recurring').reduce((s, i) => s + i.amount, 0);
+      const totalOneTime = state.expenses.filter((e) => e.type === 'onetime').reduce((s, i) => s + i.amount, 0);
+      const totalIncome = state.expenses.filter((e) => e.type === 'income').reduce((s, i) => s + i.amount, 0);
+      const totalSpent = totalRecurring + totalOneTime;
+      const remaining = state.monthlyBudget - totalSpent;
+      const netCashflow = totalIncome - totalSpent;
+
+      const recPct = state.monthlyBudget > 0 ? Math.min(100, (totalRecurring / state.monthlyBudget) * 100) : 0;
+      const onePct = state.monthlyBudget > 0 ? Math.min(100 - recPct, (totalOneTime / state.monthlyBudget) * 100) : 0;
+      const totalPct = state.monthlyBudget > 0 ? Math.min(100, Math.round((totalSpent / state.monthlyBudget) * 100)) : 0;
+
+      budgetDisplay.textContent = formatINR(state.monthlyBudget);
+      recurringDisplay.textContent = formatINR(totalRecurring);
+      spentDisplay.textContent = formatINR(totalSpent);
+      incomeSubDisplay.textContent = t.incomePrefix + formatINR(totalIncome);
+      remainingDisplay.textContent = formatINR(remaining);
+      remainingDisplay.className = remaining >= 0 ? 'text-2xl sm:text-3xl font-bold text-emerald-600 mt-1' : 'text-2xl sm:text-3xl font-bold text-rose-600 mt-1';
+      netCashflowDisplay.textContent = t.netPrefix + formatINR(netCashflow);
+
+      percentDisplay.textContent = totalPct + '%';
+      recurringBar.style.width = recPct + '%';
+      progressBar.style.width = onePct + '%';
+
+      recurringCount.textContent = recurringItems.length + (recurringItems.length === 1 ? ' item' : ' items');
+      countDisplay.textContent = otherItems.length + (otherItems.length === 1 ? ' item' : ' items');
+
+      recurringList.innerHTML = '';
+      if (recurringItems.length === 0) recurringEmpty.classList.remove('hidden');
+      else {
+        recurringEmpty.classList.add('hidden');
+        recurringItems.forEach((item) => recurringList.appendChild(createEntryElement(item)));
+      }
+
+      expenseList.innerHTML = '';
+      if (otherItems.length === 0) emptyState.classList.remove('hidden');
+      else {
+        emptyState.classList.add('hidden');
+        otherItems.forEach((item) => expenseList.appendChild(createEntryElement(item)));
+      }
+
+      renderAccounts();
+      renderCharts();
+      renderLimitsAndGoals();
+      renderDocuments();
+    }
+
+    editBudgetBtn.addEventListener('click', () => {
+      budgetInput.value = state.monthlyBudget;
+      budgetForm.classList.toggle('hidden');
+    });
+
+    budgetForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const val = parseFloat(budgetInput.value);
+      if (!isNaN(val) && val > 0) {
+        state.monthlyBudget = val;
+        budgetForm.classList.add('hidden');
+        saveState();
+        render();
+        pushToSheets({ action: 'setBudget', monthlyBudget: val });
+      }
+    });
+
+    expenseForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = document.getElementById('exp-title').value.trim();
+      const amount = parseFloat(amountInput.value);
+      const category = categorySelect.value;
+      const account = accountSelect.value;
+      const docRef = document.getElementById('exp-doc').value.trim();
+      const addedBy = addedByInput.value.trim() || 'Me';
+
+      if (title && !isNaN(amount) && amount > 0) {
+        safeSet(USER_STORAGE_KEY, addedBy);
+        activeUserPill.textContent = I18N[currentLang].signedInPrefix + addedBy;
+        const entry = {
+          id: 'exp-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+          type: activeEntryType,
+          title,
+          amount,
+          category,
+          account,
+          docRef,
+          addedBy,
+          settled: false
+        };
+        if (activeEntryType === 'recurring') {
+          const day = parseInt(duedayInput.value, 10);
+          entry.dueDay = (!isNaN(day) && day >= 1 && day <= 31) ? day : 1;
+        } else {
+          entry.date = dateInput.value || TODAY;
+        }
+
+        state.expenses.unshift(entry);
+        document.getElementById('exp-title').value = '';
+        amountInput.value = '';
+        document.getElementById('exp-doc').value = '';
+        dateInput.value = TODAY;
+        saveState();
+        render();
+        pushToSheets({ action: 'add', entry });
+        showToast('Saved: ' + title, false);
+      }
+    });
+
+    limitForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const cat = document.getElementById('limit-category').value;
+      const amt = parseFloat(document.getElementById('limit-amount').value);
+      if (!isNaN(amt) && amt > 0) {
+        state.categoryLimits[cat] = amt;
+        document.getElementById('limit-amount').value = '';
+        saveState();
+        renderLimitsAndGoals();
+        pushToSheets({ action: 'saveMeta', categoryLimits: state.categoryLimits });
+      }
+    });
+
+    goalForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = document.getElementById('goal-title').value.trim();
+      const target = parseFloat(document.getElementById('goal-target').value);
+      if (title && !isNaN(target) && target > 0) {
+        state.goals.push({ id: 'g-' + Date.now(), title, target, saved: 0 });
+        goalForm.reset();
+        saveState();
+        renderLimitsAndGoals();
+        pushToSheets({ action: 'saveMeta', goals: state.goals });
+      }
+    });
+
+    [searchInput, typeFilter, memberFilter, accountFilter].forEach((el) => {
+      el.addEventListener('input', render);
+      el.addEventListener('change', render);
+    });
+    docSearch.addEventListener('input', renderDocuments);
+
+    resetBtn.addEventListener('click', () => {
+      resetBtn.classList.add('hidden');
+      resetConfirmBtn.classList.remove('hidden');
+    });
+    resetConfirmBtn.addEventListener('click', () => {
+      state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+      saveState();
+      resetConfirmBtn.classList.add('hidden');
+      resetBtn.classList.remove('hidden');
+      render();
+      showToast('Reset to sample data', false);
+    });
+
+    applyLanguage();
+    updateSyncUI();
+    render();
+    if (scriptUrl) pullFromSheets();
+  </script>
+</body>
+</html>
